@@ -1,0 +1,177 @@
+package darkfield.controller;
+
+import java.util.HashMap;
+import java.util.Map;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import darkfield.service.CountService;
+import darkfield.util.IConstant;
+import io.swagger.annotations.ApiOperation;
+
+@RestController
+@CrossOrigin(origins = "*", allowedHeaders = "*")
+@RequestMapping("api/count")
+public class CountController {
+	@Autowired
+	private CountService countService;
+	@ApiOperation(value = "JSON body")
+	@GetMapping("/view_all_counts")
+	public Map<Object, Object> viewAllCount(@RequestHeader(IConstant.HEADER_TAG) String header) {
+		HashMap<Object, Object> map = new HashMap<>();
+		if (header.equals(IConstant.HEADER_STRING)) {
+
+			return countService.viewAllCount();
+		}
+		map.put(IConstant.MESSAGE, IConstant.INVALID_REQUEST);
+		map.put(IConstant.RESPONSE, IConstant.FOR_UNVALID);
+		return map;
+	}
+}
+
+
+
+
+
+package darkfield.dao;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
+import org.springframework.stereotype.Service;
+
+import com.stripe.model.Event;
+
+import darkfield.model.Audio;
+import darkfield.model.BookingEntity;
+import darkfield.model.Category;
+import darkfield.model.CouponEntity;
+import darkfield.model.Currency;
+import darkfield.model.EventFileUrl;
+import darkfield.model.Language;
+import darkfield.model.Partner;
+import darkfield.model.RigionEntity;
+import darkfield.model.User;
+import darkfield.payload.CategoryListPayload;
+import darkfield.payload.CountPayload;
+import darkfield.repository.AudioFileUrlRepository;
+import darkfield.repository.AudioRepository;
+import darkfield.repository.CategoryRepository;
+import darkfield.repository.CouponRepository;
+import darkfield.repository.CurrencyRepository;
+import darkfield.repository.EventFileUrlRepository;
+import darkfield.repository.EventRepository;
+import darkfield.repository.PatnerRepository;
+import darkfield.repository.RigionRepository;
+import darkfield.repository.ShowBookingRepository;
+import darkfield.repository.UserRepository;
+import darkfield.repository.languageRepository;
+import darkfield.service.CountService;
+import darkfield.util.IConstant;
+@Service
+public class CountServiceDao implements CountService {
+	
+@Autowired
+private UserRepository userRepository;
+@Autowired
+EventRepository eventRepository;
+@Autowired
+private PatnerRepository partnerrepo;
+@Autowired
+private RigionRepository rigionrepo;
+@Autowired
+private ShowBookingRepository showBookingRepository;
+	@Override
+	public Map<Object, Object> viewAllCount() {
+		Map<Object, Object> response = new HashMap<Object, Object>();
+		try {
+		List<User> userList=new ArrayList<User>();
+		List<darkfield.model.Event> eventList=new ArrayList<darkfield.model.Event>();
+		List<Partner> partnerList=new ArrayList<Partner>();
+		List<RigionEntity> rigionList=new ArrayList<RigionEntity>();
+		  List<BookingEntity> bookingList=new ArrayList<>();
+			List<CountPayload> cateList3= new ArrayList<CountPayload>();
+			List<CountPayload> cateList4= new ArrayList<CountPayload>();
+			List<CountPayload> cateList5= new ArrayList<CountPayload>();
+			List<CountPayload> cateList6= new ArrayList<CountPayload>();
+			List<CountPayload> cateList7= new ArrayList<CountPayload>();
+			
+			userList=userRepository.findAll();
+			eventList=eventRepository.findAll();
+			partnerList=partnerrepo.findAll();
+			rigionList=rigionrepo.findAll();
+			bookingList=showBookingRepository.findAll();
+			if (userList != null && !userList.isEmpty()) {
+				CountPayload catePyaload = new CountPayload();
+				for (User cate : userList) {                    
+					cateList3.add(catePyaload);	
+				}
+				for (darkfield.model.Event cate : eventList) {
+					cateList4.add(catePyaload);	
+				}
+				for (Partner cate : partnerList) {
+					cateList5.add(catePyaload);	
+				}
+				for (RigionEntity cate : rigionList) {
+					cateList6.add(catePyaload);	
+				}
+				for (BookingEntity cate : bookingList) {
+					cateList7.add(catePyaload);	
+				 }
+				catePyaload.setUserCount(cateList3.size());
+				catePyaload.setEventCount(cateList4.size());
+				catePyaload.setPartnerCount(cateList5.size());
+				catePyaload.setRegionCount(cateList6.size());
+                catePyaload.setBookingCount(cateList7.size());
+				response.put(IConstant.RESPONSE, IConstant.OK);
+				response.put(IConstant.MESSAGE, IConstant.RECORDS_FOUND_SUCCESSFULLY);
+				
+				response.put(IConstant.OBJECT_RESPONSE, catePyaload);
+				return response;
+			}
+			response.put(IConstant.RESPONSE, IConstant.OK);
+			response.put(IConstant.MESSAGE, IConstant.RECORDS_NOT_FOUND);
+			response.put(IConstant.OBJECT_RESPONSE,cateList3);
+			return response;
+		} catch (Exception e) {
+			e.printStackTrace();
+			response.put(IConstant.RESPONSE, IConstant.SERVER_ERROR);
+			response.put(IConstant.MESSAGE, IConstant.SERVER_ERROR_msg);
+			return response;
+		}
+	
+			}
+	
+	
+}
+
+
+public class CountPayload {
+	private long userCount;
+	
+	
+	private long eventCount;
+	
+	private long partnerCount;
+	 private long regionCount;
+		private long bookingCount;
+	private long subscriptionsCount;
+}
+
+
+
+
+
+
+
+
